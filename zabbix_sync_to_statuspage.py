@@ -130,7 +130,7 @@ class ZabbixService:
                                   "But it has further descendants which is not allowed. (Statuspage does not have nested groups)"
                                   "Descendants will not be sync'd.".format(gc["name"], gc["serviceid"], rg["name"], rg["serviceid"]))
 
-                zbx_info.append(ZabbixServiceInfo(gc["serviceid"], gc["name"], ZbxStatus(int(gc["status"])).name, is_group_parent=False, linked_parent_id=rg["serviceid"]))
+                zbx_info.append(ZabbixServiceInfo(gc["serviceid"], gc["name"], ZbxStatus(int(gc["status"])).name, linked_parent_id=rg["serviceid"]))
 
         return zbx_info
 
