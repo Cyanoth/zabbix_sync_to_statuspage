@@ -276,9 +276,9 @@ def send_webhook_alert(webhook_url, pageid, failed_attempts_count, exception):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Test Description')
-    parser.add_argument('-c', '--config', help="Configuration file that includes API & metrics to monitor", type=str,default="zabbix_sync_to_statuspage_conf.yaml")
-    parser.add_argument('-d', '--dryrun', help="Dry-run mode. The value won't actually be sent to StatusPage.", action='store_true')
+    parser = argparse.ArgumentParser(description='Synchronise Zabbix Services with Statuspage Components')
+    parser.add_argument('-c', '--config', help="Path to script configuration file", type=str,default="zabbix_sync_to_statuspage_conf.yaml")
+    parser.add_argument('-d', '--dryrun', help="Dry-run mode. The value won't actually be sent to Statuspage.", action='store_true')
     parser.add_argument('-l', '--logfile', help="Specify the log-file to store logging information.", default='zabbix_sync_to_statuspage_conf.log')
     parser.add_argument('-s', '--screen', help="Print log details to screen (console)", action='store_true')
     parser.add_argument('-v', '--verbose', help="Verbose. Log debug information", action='store_true')
