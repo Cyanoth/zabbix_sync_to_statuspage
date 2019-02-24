@@ -25,7 +25,7 @@ class ZbxStatus(Enum):
 ZBX_SP_MAPPING = {
     "operational": "operational",
     "warning":     "degraded_performance",
-    "average":     "minor_outage",
+    "average":     "partial_outage",
     "high":        "major_outage",
     "disaster":    "major_outage"
 }
@@ -167,7 +167,7 @@ class StatusPageSync:
 
                 # Make sure the status on the statuspage component is the same as the status on zabbix.
                 sp_status = sp_component.component_status
-                zbx_status = ZBX_SP_MAPPING[zbx_service.service_status]
+                zbx_status = zbx_service.service_status
                 if sp_status != zbx_status:
                     logging.debug("Service: {} status mismatch (SP: {} ZBX: {}). Updating.".
                                   format(sp_component.component_name, sp_status, zbx_status))
@@ -250,6 +250,7 @@ class StatusPageSync:
 
     def _update_component_status(self, component_id, status):
         url = self.sp_api_host + "/components/" + component_id
+        logging.info("Setting component {} status to: {}".format(component_id, status))
         if not DRY_RUN:
             res = requests.patch(url, json={'component': {'status': status}}, headers=self.authorization_header, timeout=10)
             res.raise_for_status()
@@ -266,12 +267,15 @@ def send_webhook_alert(webhook_url, pageid, failed_attempts_count, exception):
     """
     webhook_timeout = 60
     logging.debug("Post a message to {}".format(webhook_url))
-    msg = "Zabbix <-> Statuspage Sync Failure. The statuspage {} data may be out of date!" \
-          "Amount of failed sync attempts: {}. {}".format(pageid, failed_attempts_count, exception)
 
+    if failed_attempts_count > 0:
+        msg = "Zabbix <-> Statuspage Sync Failure. The statuspage {} data may be out of date! \n" \
+              "Amount of failed sync attempts: {}. {}".format(pageid, failed_attempts_count, exception)
+    else:
+        msg = "Zabbix <-> Statuspage sync Restored for page {}.".format(pageid)
     # Longer timeout incase of intermittent connectivity problems
     logging.info("Sending message to webhook. Will wait {} before continuing".format(webhook_timeout))
-    res = requests.get(webhook_url, data={"text": msg}, headers={'Content-Type': 'application/json'}, timeout=webhook_timeout)
+    res = requests.post(webhook_url, data=json.dumps({"text": msg}), headers={'Content-type': 'application/json'}, timeout=webhook_timeout)
     res.raise_for_status()
 
 
@@ -320,7 +324,10 @@ if __name__ == "__main__":
             try:
                 services_to_sync = zabbix_con.get_services(config["zabbix_root_service_id"])
                 statuspage_con.sync_zbx_to_sp(services_to_sync)
-                failed_attempts_count = 0
+                if failed_attempts_count > 0:
+                    failed_attempts_count = 0  # Post to webhook saying its been restored.
+                    send_webhook_alert(alert_msg_webhook, config["sp_api_pageid"], 0, "")
+
                 logging.info("A Zabbix <-> Statuspage sync has completed. Waiting {}ms before the next sync.".format(str(delay)))
             except requests.HTTPError as err:
                 logging.error("Zabbix <-> Statuspage Sync failed. An exception occurred: {}".format(err))
@@ -329,7 +336,7 @@ if __name__ == "__main__":
 
                 if failed_attempts_count == alert_fail_attempts and alert_msg_webhook != "":
                     exception = err if alert_include_exception else ""
-                    send_webhook_alert(alert_msg_webhook, failed_attempts_count, exception)
+                    send_webhook_alert(alert_msg_webhook, config["sp_api_pageid"], failed_attempts_count, exception)
 
                 if (bail_fail_attempts != 0) and (failed_attempts_count >= bail_fail_attempts):
                     logging.fatal("Amount of consecutive sync attempts () greater than bail amount {}. Bailing-out.".
