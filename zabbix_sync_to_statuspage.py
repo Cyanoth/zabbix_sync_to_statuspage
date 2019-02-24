@@ -332,7 +332,7 @@ if __name__ == "__main__":
                     send_webhook_alert(alert_msg_webhook, failed_attempts_count, exception)
 
                 if (bail_fail_attempts != 0) and (failed_attempts_count >= bail_fail_attempts):
-                    logging.error("Amount of consecutive sync attempts () greater than bail amount {}. Bailing-out.".
+                    logging.fatal("Amount of consecutive sync attempts () greater than bail amount {}. Bailing-out.".
                                   format(failed_attempts_count, bail_fail_attempts))
                     exit(1)
 
