@@ -209,8 +209,8 @@ class StatusPageSync:
             if sp_group is not None:
                 logging.debug("Found component group {} named {}. With children: {}".format(sp_group["id"], sp_group["name"], extracted_ids))
             else:
-                logging.debug("Creating a new component group on statuspage: {} with components: {}".format(zbx_group.name, extracted_ids))
-                self._create_component_group(zbx_group.name, extracted_ids)
+                logging.debug("Creating a new component group on statuspage: {} with components: {}".format(zbx_group.service_name, extracted_ids))
+                self._create_component_group(zbx_group.service_name, extracted_ids)
                 continue  # Newly created group, we don't need to continue to update the children again.
 
             # Check the ID's in the statuspage component group matches the children in the zabbix group.
