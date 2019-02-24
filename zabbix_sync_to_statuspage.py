@@ -217,7 +217,7 @@ class StatusPageSync:
             if len(set(extracted_ids) - set(sp_group["components"])) != 0:
                 logging.debug("The children in the component group {} are not the same. Refreshing group children "
                               "to {}".format(zbx_group.id, extracted_ids))
-                self.update_component_group(sp_group["id"], extracted_ids)
+                self._update_component_group(sp_group["id"], extracted_ids)
 
     def _create_component(self, name):
         url = self.sp_api_host + "/components/"
@@ -241,7 +241,7 @@ class StatusPageSync:
             res.raise_for_status()
         logging.info("A new component group has been created: {} which now contains {}.".format(name, group_children))
 
-    def update_component_group(self, component_group_id, group_children):
+    def _update_component_group(self, component_group_id, group_children):
         url = self.sp_api_host + "/component-groups/" + component_group_id
         if not DRY_RUN:
             res = requests.put(url, json={'component_group': {'components': group_children}}, headers=self.authorization_header, timeout=10)
