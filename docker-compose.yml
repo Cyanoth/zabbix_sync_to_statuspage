@@ -1,0 +1,10 @@
+version: '2'
+services:
+  zabbix_sync_to_statuspage:
+    container_name: zabbix_sync_to_statuspage
+    build: .
+    volumes:
+        - config:/var/opt/zabbix_sync_to_statuspage/:rw    
+volumes:
+    config:
+        driver: local
