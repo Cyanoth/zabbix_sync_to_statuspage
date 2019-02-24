@@ -167,7 +167,7 @@ class StatusPageSync:
 
                 # Make sure the status on the statuspage component is the same as the status on zabbix.
                 sp_status = sp_component.component_status
-                zbx_status = zbx_service.service_status
+                zbx_status = ZBX_SP_MAPPING[zbx_service.service_status]
                 if sp_status != zbx_status:
                     logging.debug("Service: {} status mismatch (SP: {} ZBX: {}). Updating.".
                                   format(sp_component.component_name, sp_status, zbx_status))
@@ -329,7 +329,7 @@ if __name__ == "__main__":
                     send_webhook_alert(alert_msg_webhook, config["sp_api_pageid"], 0, "")
 
                 logging.info("A Zabbix <-> Statuspage sync has completed. Waiting {}ms before the next sync.".format(str(delay)))
-            except requests.HTTPError as err:
+            except Exception as err:
                 logging.error("Zabbix <-> Statuspage Sync failed. An exception occurred: {}".format(err))
                 failed_attempts_count = failed_attempts_count + 1
                 logging.info("Consecutive failed sync attempts: {}. Will retry in: {}ms".format(failed_attempts_count, delay))
