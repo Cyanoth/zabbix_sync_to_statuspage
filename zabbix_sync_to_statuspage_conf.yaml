@@ -1,0 +1,17 @@
+---
+zabbix_root_service_id: ""
+updateDelay: 15000 
+
+sp_api_host: "https://api.statuspage.io"
+sp_api_key: ""
+sp_api_pageid: ""
+sp_allow_dangling_component_delete: False # Delete Components which exist on Statuspage but not Zabbix
+
+zbx_api_host: ""
+zbx_api_username: ""
+zbx_api_password: ""
+
+alert_fail_attempts: 10 # Number of failed connection attempts before POSTING to a slack webhook
+alert_msg_webhook: ""
+alert_include_exception: True
+bail_fail_attempts: 0 # Number of failed connection attempts before this script bails. Put 0 to never bail
