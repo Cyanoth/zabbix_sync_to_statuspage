@@ -3,4 +3,4 @@ chardet==3.0.4
 idna==2.8
 pyyaml>=4.2b1
 requests==2.21.0
-urllib3==1.24.1
+urllib3==1.26.5
